@@ -1,5 +1,5 @@
 import curses
-import menu
+import game
 
-game = menu.Menu()
-wrap = curses.wrapper(game.main)
+this_game = game.Game()
+wrap = curses.wrapper(this_game.main)
