@@ -1,28 +1,30 @@
-from choice import player_choice
 import classes
+import curses
 import sys
+from menu_funcs import player_choice, add_text
 
 class GameStart:
-    def loadChoice(self):
+    def loadChoice(self, scrn):
         load_options = [{'title':'New Game'},{'title':'Load Game'}]
-        choice = player_choice(load_options)
+        choice, quit = player_choice(load_options, scrn)
         if choice['title'] == 'New Game':
-            self.newGame()
+            self.newGame(scrn)
         else:
             # This is where the load game call would go
-            print ('Not yet supported! Quitting...')
+            add_text('Not yet supported! Quitting...', scrn)
             sys.exit(0)
 
-    def newGame(self):
-        print ('New Game!')
+    def newGame(self, scrn):
         self.player = classes.Creature('cr_newplayer')
         self.player.location = 'loc_camp'
         self.player.time = 8
         while True:
-            print ('What is your name?')
-            player_name = input()
+            add_text('What is your name?', scrn)
+            curses.echo()
+            player_name = scrn.getstr().decode()
+            curses.noecho()
             if not player_name:
-                print ('Please enter something!')
+                add_text('Please enter something!', scrn)
             else:
                 self.player.name = player_name.title()
                 break

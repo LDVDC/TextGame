@@ -52,3 +52,7 @@ def enter_wait(scrn):
         press = scrn.getch()
         if press == 10:
             break
+
+def add_text(text, scrn):
+    curY, curX = scrn.getyx()
+    scrn.addstr(curY + 2, 0, text)
