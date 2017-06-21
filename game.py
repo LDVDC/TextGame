@@ -1,10 +1,10 @@
 from locations import main_locations
 from encounters import main_encounters
-from creatures import main_creatures
-import enc_funcs
+import events
 import startup
+import curses
 from numpy.random import choice
-import menu_funcs as menu
+from menu import menuOptions
 
 class Game:
     def advance_day(self):
@@ -21,9 +21,11 @@ class Game:
 
     def main(self, stdscr):
         # Start the game!
+        curses.curs_set(0)
         self.scr = stdscr
-        game_start = startup.GameStart()
-        game_start.loadChoice(self.scr)
+        menu = menuOptions(self.scr)
+        game_start = startup.GameStart(self.scr)
+        game_start.loadChoice()
         self.player = game_start.player
 
         chosen = {'text':'You\'re standing in camp'}
@@ -36,7 +38,7 @@ class Game:
             self.scr.addstr(menu_text)
 
             ### This is the pause for input ###
-            chosen, quit = menu.player_choice(loc_dict['options'], self.scr)
+            chosen, quit = menu.player_choice(loc_dict['options'])
             ### This is the pause for input ###
 
             if quit == 1:
@@ -45,22 +47,23 @@ class Game:
             self.player.location = chosen['new_loc']
             self.player.time += chosen['time']
 
-            # Check if we got an encounter
+            # Generate the outcome
             outcome = choice(chosen['outcomes']['titles'], 1,
                              chosen['outcomes']['prob'])
+            # Check if we got an encounter
             if outcome[0] != 'enc_nothing':
+                new_enc = events.newEncounter(menu)
                 encounter = main_encounters[outcome[0]]
                 if encounter['type'] == 'battle':
-                    enc_funcs.battle(encounter, self.scr)
+                    new_enc.battle(encounter)
                 elif encounter['type'] == 'shop':
-                    enc_funcs.shop(encounter, self.scr)
+                    new_enc.shop(encounter)
                 else:
                     menu.add_text('Unsupported encounter type!')
 
             if self.player.time % 24 > 22 or self.player.time % 24 < 6:
-                menu.add_text('It\'s late. You go to sleep... (ENTER)',
-                              self.scr)
-                menu.enter_wait(self.scr)
+                menu.add_text('It\'s late. You go to sleep... (ENTER)')
+                menu.enter_wait()
                 self.advance_day()
 
             self.scr.refresh()
