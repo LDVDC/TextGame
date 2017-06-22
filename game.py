@@ -13,57 +13,70 @@ class Game:
             self.player.time += 24
         self.player.time += 8 - (self.player.time % 24)
 
-    def encounter(self, enc_name):
-        enc_dict = main_encounters[enc_name]
-        self.scr.clear()
-        self.scr.addstr('Battle Time!' + enc_dict['creature'])
-        self.scr.getch()
-
     def main(self, stdscr):
         # Start the game!
         curses.curs_set(0)
         self.scr = stdscr
-        menu = menuOptions(self.scr)
+        self.menu = menuOptions(self.scr)
         game_start = startup.GameStart(self.scr)
         game_start.loadChoice()
         self.player = game_start.player
 
-        chosen = {'text':'You\'re standing in camp'}
+        self.chosen = {'text':'You\'re standing in camp'}
         # Main gameplay loop
         while True:
             self.scr.clear()
 
             loc_dict = main_locations[self.player.location]
-            menu_text = menu.gen_menu(self.player,chosen,loc_dict)
+            menu_text = self.menu.gen_menu(self.player,self.chosen,loc_dict)
             self.scr.addstr(menu_text)
+            self.menu.add_text(self.chosen['text'])
 
             ### This is the pause for input ###
-            chosen, quit = menu.player_choice(loc_dict['options'])
+            self.chosen, quit = self.menu.player_choice(loc_dict['options'])
             ### This is the pause for input ###
 
             if quit == 1:
                 break
 
-            self.player.location = chosen['new_loc']
-            self.player.time += chosen['time']
+            self.player.location = self.chosen['new_loc']
+            self.player.time += self.chosen['time']
 
             # Generate the outcome
-            outcome = choice(chosen['outcomes']['titles'], 1,
-                             chosen['outcomes']['prob'])
+            outcome = choice(self.chosen['outcomes']['titles'], 1,
+                             self.chosen['outcomes']['prob'])
             # Check if we got an encounter
             if outcome[0] != 'enc_nothing':
-                new_enc = events.newEncounter(menu, self.player)
+                new_enc = events.newEncounter(self.menu, self.player)
                 encounter = main_encounters[outcome[0]]
+                self.clear_chosen()
                 if encounter['type'] == 'battle':
                     new_enc.battle(encounter)
                 elif encounter['type'] == 'shop':
                     new_enc.shop(encounter)
                 else:
-                    menu.add_text('Unsupported encounter type!')
+                    self.menu.add_text('Unsupported encounter type!')
 
+            # Check if we leveled up
+            if self.player.xp >= self.player.next_xp:
+                self.level_up()
+
+            # Check if we need to go to sleep
             if self.player.time % 24 > 22 or self.player.time % 24 < 6:
-                menu.add_text('It\'s late. You go to sleep... (ENTER)')
-                menu.enter_wait()
+                self.menu.add_text('It\'s late. You go to sleep... (ENTER)')
+                self.menu.enter_wait()
                 self.advance_day()
+                self.clear_chosen()
 
             self.scr.refresh()
+
+    def clear_chosen(self):
+        self.chosen = {'text':''}
+
+    def level_up(self):
+        self.player.lvl += 1
+        self.player.xp = 0
+        self.player.next_xp += 40
+        self.menu.add_text('You leveled up! (ENTER)')
+        self.menu.enter_wait()
+        return

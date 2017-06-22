@@ -5,13 +5,13 @@ class menuOptions:
         self.scrn = screen
 
     def gen_menu(self, player, chosen, loc):
-        menu_text = player.name + ' -- HP: ' + str(player.hp) + \
-                    ' Str: ' + str(player.stats['str']) + ' Dex: ' + \
-                    str(player.stats['dex']) + ' Int: ' + \
-                    str(player.stats['int'])
-        menu_text += '\nLocation: ' + loc['name']
-        menu_text += '\n' + str(datetime.timedelta(hours=player.time)) + '\n'
-        menu_text += chosen['text'] + '\n'
+        menu_text = player.name + ' -- Level: ' + str(player.lvl) + ' HP: ' + \
+                    str(player.hp) + ' Str: ' + str(player.stats['str']) + \
+                    ' Dex: ' + str(player.stats['dex']) + ' Int: ' + \
+                    str(player.stats['int']) + '\n'
+        menu_text += 'XP: ' + str(player.xp) + '/' + str(player.next_xp) + '\n'
+        menu_text += 'Location: ' + loc['name'] + '\n'
+        menu_text += str(datetime.timedelta(hours=player.time)) + '\n'
         return menu_text
 
     def player_choice(self, options):

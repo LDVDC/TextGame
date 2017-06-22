@@ -6,4 +6,8 @@ class Creature:
         self.stats = cr_dict['stats']
         self.name = cr_dict['name']
         self.hp = cr_dict['stats']['maxhp']
+        self.lvl = cr_dict['lvl']
         self.moves = cr_dict['moves']
+        self.xp = 0
+        self.next_xp = 100
+        self.xp_on_kill = cr_dict['xp_rew']
