@@ -2,11 +2,13 @@ main_creatures = {
     'cr_newplayer':{
         'name':'New Player',
         'stats':{'str':1,'dex':1,'int':1,'maxhp':50},
-        'moves':{1:'attack',2:'run'}
+        'moves':[{'title':'Attack','dmg':5},
+                 {'title':'Run','dmg':0}]
     },
     'cr_goblin':{
         'name':'Goblin',
         'stats':{'str':3,'dex':3,'int':1,'maxhp':40},
-        'moves':{1:'attack',2:'big_attack'}
+        'moves':[{'title':'attack','dmg':5},
+                 {'title':'big_attack','dmg':10}]
     }
 }

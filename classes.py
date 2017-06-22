@@ -1,4 +1,4 @@
-from creatures import main_creatures
+from lib.data.creatures import main_creatures
 
 class Creature:
     def __init__(self, cr_type):
@@ -6,3 +6,4 @@ class Creature:
         self.stats = cr_dict['stats']
         self.name = cr_dict['name']
         self.hp = cr_dict['stats']['maxhp']
+        self.moves = cr_dict['moves']

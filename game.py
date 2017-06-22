@@ -1,5 +1,5 @@
-from locations import main_locations
-from encounters import main_encounters
+from lib.data.locations import main_locations
+from lib.data.encounters import main_encounters
 import events
 import startup
 import curses
@@ -52,7 +52,7 @@ class Game:
                              chosen['outcomes']['prob'])
             # Check if we got an encounter
             if outcome[0] != 'enc_nothing':
-                new_enc = events.newEncounter(menu)
+                new_enc = events.newEncounter(menu, self.player)
                 encounter = main_encounters[outcome[0]]
                 if encounter['type'] == 'battle':
                     new_enc.battle(encounter)
