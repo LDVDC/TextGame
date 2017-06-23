@@ -32,6 +32,14 @@ class Game:
             self.scr.addstr(menu_text)
             self.menu.add_text(self.chosen['text'])
 
+            # Check if we need to go to sleep
+            if self.player.time % 24 > 22 or self.player.time % 24 < 6:
+                self.menu.add_text('It\'s late. You go to sleep... (ENTER)')
+                self.menu.enter_wait()
+                self.advance_day()
+                self.clear_chosen()
+                continue
+
             ### This is the pause for input ###
             self.chosen, quit = self.menu.player_choice(loc_dict['options'])
             ### This is the pause for input ###
@@ -43,12 +51,19 @@ class Game:
             self.player.time += self.chosen['time']
 
             # Generate the outcome
-            outcome = choice(self.chosen['outcomes']['titles'], 1,
-                             self.chosen['outcomes']['prob'])
+            outcome = choice(self.chosen['outcomes']['details'], 1,
+                             self.chosen['outcomes']['prob'])[0]
+
+            # Check if the outcome has any special effects
+            if 'hp_reg' in outcome:
+                self.player.hp += self.player.stats['maxhp'] * outcome['hp_reg']
+                if self.player.hp > self.player.stats['maxhp']:
+                    self.player.hp = self.player.stats['maxhp']
+
             # Check if we got an encounter
-            if outcome[0] != 'enc_nothing':
+            if outcome['title'] != 'enc_nothing':
                 new_enc = events.newEncounter(self.menu, self.player)
-                encounter = main_encounters[outcome[0]]
+                encounter = main_encounters[outcome['title']]
                 self.clear_chosen()
                 if encounter['type'] == 'battle':
                     new_enc.battle(encounter)
@@ -61,13 +76,6 @@ class Game:
             if self.player.xp >= self.player.next_xp:
                 self.level_up()
 
-            # Check if we need to go to sleep
-            if self.player.time % 24 > 22 or self.player.time % 24 < 6:
-                self.menu.add_text('It\'s late. You go to sleep... (ENTER)')
-                self.menu.enter_wait()
-                self.advance_day()
-                self.clear_chosen()
-
             self.scr.refresh()
 
     def clear_chosen(self):
@@ -77,6 +85,7 @@ class Game:
         self.player.lvl += 1
         self.player.xp = 0
         self.player.next_xp += 40
+        self.player.hp = self.player.stats['maxhp']
         self.menu.add_text('You leveled up! (ENTER)')
         self.menu.enter_wait()
         return
